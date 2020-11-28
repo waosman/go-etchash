@@ -426,8 +426,8 @@ func (l *Light) VerifyShare(block Block, shareDiff *big.Int) (bool, bool, int64,
 	// TODO: do ethash_quick_verify before getCache in order
 	// to prevent DOS attacks.
 	blockNum := block.NumberU64()
-	if blockNum >= epochLength*2048 {
-		log.Debug(fmt.Sprintf("block number %d too high, limit is %d", epochLength*2048))
+	if blockNum >= epochLengthDefault*2048 {
+		log.Debug(fmt.Sprintf("block number %d too high, limit is %d", blockNum, epochLengthDefault*2048))
 		return false, false, 0, zeroHash
 	}
 
@@ -457,10 +457,12 @@ func (l *Light) VerifyShare(block Block, shareDiff *big.Int) (bool, bool, int64,
 		dagSize = dagSizeForTesting
 	}
 	// Recompute the hash using the cache.
-	ok, mixDigest, result := cache.compute(uint64(dagSize), block.HashNoNonce(), block.Nonce())
+	/*ok, mixDigest, result := cache.compute(uint64(dagSize), block.HashNoNonce(), block.Nonce())
 	if !ok {
 		return false, false, 0, zeroHash
-	}
+	}*/
+	mixDigest, result := cache.compute(uint64(dagSize), block.HashNoNonce(), block.Nonce())
+	
 
 	// avoid mixdigest malleability as it's not included in a block's "hashNononce"
 	if blkMix := block.MixDigest(); blkMix != zeroHash && blkMix != mixDigest {
